@@ -1,181 +1,1305 @@
-<!DOCTYPE html>
+
+# Let's create a complete, cute Bug Catching Farm game in a single HTML file
+# Features: cute bugs, shop, tools, upgrades, motivation system
+
+html_content = """<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>مزرعة الحشرات الكيوت v2.0</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--primary:#667eea;--secondary:#764ba2;--accent:#f5576c;--gold:#f6d365;--success:#96e6a1;--glass:rgba(255,255,255,0.85);--shadow:0 8px 32px rgba(0,0,0,0.12)}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Tajawal',sans-serif;background:linear-gradient(135deg,#a8edea 0%,#fed6e3 50%,#d299c2 100%);min-height:100vh;overflow-x:hidden;user-select:none}
-.particle{position:fixed;pointer-events:none;z-index:0;opacity:0.5;animation:floatParticle 8s ease-in-out infinite}
-@keyframes floatParticle{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-40px) rotate(180deg)}}
-
-.intro-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s,visibility 1s}
-.intro-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
-.intro-stars{position:absolute;inset:0;overflow:hidden}
-.intro-star{position:absolute;width:3px;height:3px;background:white;border-radius:50%;animation:twinkle 2s infinite}
-@keyframes twinkle{0%,100%{opacity:0.2;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
-.intro-logo{position:relative;z-index:2;text-align:center;animation:introFloat 3s ease-in-out infinite}
-@keyframes introFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
-.intro-emoji{font-size:5rem;margin-bottom:15px;filter:drop-shadow(0 0 30px rgba(246,211,101,0.5));animation:emojiPulse 2s ease-in-out infinite}
-@keyframes emojiPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.intro-title{font-size:2.8rem;font-weight:900;color:white;text-shadow:0 0 40px rgba(102,126,234,0.5);margin-bottom:8px}
-.intro-subtitle{font-size:1.1rem;color:rgba(255,255,255,0.7);margin-bottom:40px}
-.intro-progress{width:280px;height:4px;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden;margin-bottom:15px}
-.intro-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--primary),var(--gold));border-radius:10px;transition:width 0.3s;box-shadow:0 0 10px var(--primary)}
-.intro-loading-text{color:rgba(255,255,255,0.5);font-size:0.85rem;margin-bottom:30px}
-.intro-btn{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;border:none;padding:16px 60px;border-radius:50px;font-family:'Tajawal',sans-serif;font-size:1.3rem;font-weight:900;cursor:pointer;transition:all 0.4s;box-shadow:0 10px 40px rgba(102,126,234,0.4);opacity:0;transform:translateY(20px);pointer-events:none}
-.intro-btn.visible{opacity:1;transform:translateY(0);pointer-events:auto}
-.intro-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 15px 50px rgba(102,126,234,0.6)}
-.intro-version{position:absolute;bottom:20px;color:rgba(255,255,255,0.3);font-size:0.75rem}
-
-.game-container{max-width:900px;margin:0 auto;padding:12px;position:relative;z-index:1;animation:fadeInUp 0.8s ease}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-
-.header{background:var(--glass);backdrop-filter:blur(20px);border-radius:24px;padding:14px 20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.6)}
-.title{font-size:1.4rem;font-weight:900;color:var(--secondary);text-shadow:2px 2px 0 rgba(255,255,255,0.8)}
-.stats-bar{display:flex;gap:10px;flex-wrap:wrap}
-.stat-item{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;padding:7px 14px;border-radius:16px;font-weight:700;font-size:0.85rem;display:flex;align-items:center;gap:5px;box-shadow:0 4px 15px rgba(102,126,234,0.25);transition:all 0.3s;cursor:pointer}
-.stat-item:hover{transform:scale(1.08) translateY(-2px)}
-.stat-item.pop{animation:statPop 0.4s}
-@keyframes statPop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
-
-.level-section{background:var(--glass);backdrop-filter:blur(20px);border-radius:20px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.5)}
-.level-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.level-badge{background:linear-gradient(135deg,#f093fb 0%,var(--accent) 100%);color:white;padding:6px 18px;border-radius:25px;font-weight:900;font-size:1rem;box-shadow:0 4px 15px rgba(245,87,108,0.3);animation:badgeGlow 2s infinite}
-@keyframes badgeGlow{0%,100%{box-shadow:0 4px 15px rgba(245,87,108,0.3)}50%{box-shadow:0 4px 25px rgba(245,87,108,0.5)}}
-.xp-bar-container{background:rgba(0,0,0,0.08);border-radius:20px;height:22px;overflow:hidden;position:relative;box-shadow:inset 0 2px 4px rgba(0,0,0,0.1)}
-.xp-bar{background:linear-gradient(90deg,#f093fb,var(--accent),#f093fb);background-size:200% 100%;height:100%;border-radius:20px;transition:width 0.8s;position:relative;animation:xpShimmer 2s linear infinite}
-@keyframes xpShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.xp-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.75rem;font-weight:700;color:#444;text-shadow:0 0 4px white;white-space:nowrap}
-
-.toast-container{position:fixed;top:15px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:90%;max-width:400px}
-.toast{background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);color:#5d4037;padding:14px 24px;border-radius:20px;font-weight:700;font-size:0.95rem;box-shadow:0 8px 30px rgba(0,0,0,0.15);animation:toastSlide 0.5s,toastFade 0.4s 2.8s forwards;text-align:center;border:2px solid rgba(255,255,255,0.6)}
-.toast.achievement{background:linear-gradient(135deg,var(--gold) 0%,#fda085 100%)}
-.toast.legendary{background:linear-gradient(135deg,#ffd700 0%,#ff8c00 100%);color:#4a3000;font-size:1.1rem;font-weight:900;animation:toastSlide 0.5s,legendaryPulse 0.5s 0.5s infinite alternate,toastFade 0.4s 3.5s forwards}
-@keyframes toastSlide{from{opacity:0;transform:translateY(-30px) scale(0.85)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes toastFade{from{opacity:1}to{opacity:0;transform:translateY(-20px) scale(0.9)}}
-@keyframes legendaryPulse{from{box-shadow:0 8px 30px rgba(255,215,0,0.3)}to{box-shadow:0 8px 40px rgba(255,215,0,0.6)}}
-
-.game-area{background:var(--glass);backdrop-filter:blur(20px);border-radius:28px;padding:20px;margin-bottom:12px;min-height:380px;position:relative;overflow:hidden;box-shadow:var(--shadow);border:2px solid rgba(255,255,255,0.6)}
-.garden-bg{position:absolute;inset:0;background:radial-gradient(circle at 15% 85%,rgba(144,238,144,0.25) 0%,transparent 45%),radial-gradient(circle at 85% 15%,rgba(255,182,193,0.25) 0%,transparent 45%),radial-gradient(circle at 50% 50%,rgba(173,216,230,0.15) 0%,transparent 50%);pointer-events:none;animation:gardenBreathe 8s infinite}
-@keyframes gardenBreathe{0%,100%{opacity:1}50%{opacity:0.8}}
-.garden-decoration{position:absolute;font-size:1.5rem;opacity:0.3;pointer-events:none;animation:decoSway 4s infinite}
-@keyframes decoSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-
-.bug{position:absolute;cursor:pointer;font-size:2.4rem;transition:all 0.25s;filter:drop-shadow(2px 4px 8px rgba(0,0,0,0.2));animation:bugFloat 3s ease-in-out infinite;z-index:10;will-change:transform,left,top}
-.bug:hover{transform:scale(1.35) rotate(8deg)!important;filter:drop-shadow(2px 6px 12px rgba(0,0,0,0.35));z-index:20}
-.bug.caught{animation:caughtAnim 0.7s forwards;pointer-events:none}
-.bug.rare-glow{filter:drop-shadow(0 0 15px rgba(255,215,0,0.6)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2));animation:bugFloat 3s infinite,rarePulse 1.5s infinite}
-.bug.epic-glow{filter:drop-shadow(0 0 20px rgba(138,43,226,0.7)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2));animation:bugFloat 3s infinite,epicPulse 1s infinite}
-.bug.legendary-glow{filter:drop-shadow(0 0 25px rgba(255,215,0,0.9)) drop-shadow(0 0 40px rgba(255,140,0,0.5)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2));animation:bugFloat 3s infinite,legendaryPulse 0.8s infinite}
-@keyframes bugFloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-18px) rotate(4deg)}}
-@keyframes rarePulse{0%,100%{filter:drop-shadow(0 0 10px rgba(255,215,0,0.4)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2))}50%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.8)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2))}}
-@keyframes epicPulse{0%,100%{filter:drop-shadow(0 0 15px rgba(138,43,226,0.5)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2))}50%{filter:drop-shadow(0 0 30px rgba(138,43,226,1)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2))}}
-@keyframes legendaryPulse{0%,100%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.6)) drop-shadow(0 0 30px rgba(255,140,0,0.3)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2))}50%{filter:drop-shadow(0 0 35px rgba(255,215,0,1)) drop-shadow(0 0 50px rgba(255,140,0,0.6)) drop-shadow(2px 4px 8px rgba(0,0,0,0.2))}}
-@keyframes caughtAnim{0%{transform:scale(1);opacity:1}30%{transform:scale(1.6) rotate(180deg);opacity:0.9}60%{transform:scale(1.2) rotate(360deg);opacity:0.6}100%{transform:scale(0) rotate(540deg);opacity:0}}
-
-.float-text{position:fixed;font-weight:900;font-size:1.3rem;pointer-events:none;animation:floatUp 1.2s forwards;z-index:1000;text-shadow:2px 2px 0 white,-1px -1px 0 white;white-space:nowrap}
-@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}40%{opacity:1;transform:translateY(-30px) scale(1.2)}100%{opacity:0;transform:translateY(-80px) scale(0.8)}}
-
-.combo-display{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);font-size:3.5rem;font-weight:900;color:var(--accent);text-shadow:3px 3px 0 white,-2px -2px 0 white,0 0 30px rgba(245,87,108,0.5);pointer-events:none;z-index:999;animation:comboPop 0.9s forwards;display:none;white-space:nowrap}
-@keyframes comboPop{0%{opacity:0;transform:translate(-50%,-50%) scale(0.3)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.4)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1) translateY(-60px)}}
-
-.section-card{background:var(--glass);backdrop-filter:blur(20px);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.5);transition:all 0.3s;animation:fadeInUp 0.6s both}
-.section-card:hover{box-shadow:0 12px 40px rgba(0,0,0,0.18);transform:translateY(-2px)}
-.section-title{font-size:1.15rem;font-weight:900;color:var(--secondary);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-
-.tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:10px}
-.tool-btn{background:linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%);border:3px solid transparent;border-radius:16px;padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.3s;font-family:'Tajawal',sans-serif;position:relative;overflow:hidden}
-.tool-btn:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 10px 25px rgba(0,0,0,0.12)}
-.tool-btn.active{border-color:var(--accent);background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);transform:scale(1.05);box-shadow:0 8px 25px rgba(245,87,108,0.25)}
-.tool-btn.active::after{content:'✓';position:absolute;top:4px;left:4px;background:var(--accent);color:white;width:18px;height:18px;border-radius:50%;font-size:0.7rem;display:flex;align-items:center;justify-content:center;font-weight:900}
-.tool-icon{font-size:1.7rem;display:block;margin-bottom:4px}
-.tool-name{font-weight:700;font-size:0.8rem;color:#4a4a4a}
-
-.shop-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
-.shop-item{background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);border-radius:18px;padding:14px;text-align:center;cursor:pointer;transition:all 0.4s;border:2px solid rgba(255,255,255,0.5);position:relative;overflow:hidden}
-.shop-item:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 12px 30px rgba(0,0,0,0.12)}
-.shop-item.owned{background:linear-gradient(135deg,#d4fc79 0%,var(--success) 100%);opacity:0.85}
-.shop-item.owned .shop-btn{background:#999;cursor:not-allowed}
-.shop-item.affordable{border-color:rgba(102,126,234,0.4);box-shadow:0 4px 15px rgba(102,126,234,0.1)}
-.shop-icon{font-size:2rem;margin-bottom:6px;display:block}
-.shop-name{font-weight:700;font-size:0.85rem;color:#5d4037;margin-bottom:4px}
-.shop-desc{font-size:0.72rem;color:#8d6e63;margin-bottom:8px;line-height:1.3}
-.shop-price{font-weight:900;color:#e74c3c;margin-bottom:8px;font-size:0.95rem}
-.shop-btn{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;border:none;padding:8px 18px;border-radius:20px;font-family:'Tajawal',sans-serif;font-weight:700;cursor:pointer;transition:all 0.3s;font-size:0.8rem;width:100%}
-.shop-btn:hover:not(:disabled){transform:scale(1.08);box-shadow:0 6px 20px rgba(102,126,234,0.4)}
-.shop-btn:disabled{background:#bbb;cursor:not-allowed;transform:none}
-
-.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(75px,1fr));gap:10px}
-.collection-item{background:linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);border-radius:16px;padding:12px 8px;text-align:center;transition:all 0.4s;border:2px solid rgba(255,255,255,0.5);cursor:pointer}
-.collection-item:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,0.1)}
-.collection-item.caught{background:linear-gradient(135deg,#d4fc79 0%,var(--success) 100%);box-shadow:0 5px 15px rgba(0,0,0,0.08);animation:collectionGlow 2s infinite}
-@keyframes collectionGlow{0%,100%{box-shadow:0 5px 15px rgba(0,0,0,0.08)}50%{box-shadow:0 5px 20px rgba(150,230,161,0.4)}}
-.collection-item.not-caught{opacity:0.35;filter:grayscale(0.9)}
-.collection-emoji{font-size:1.8rem;display:block;margin-bottom:3px}
-.collection-name{font-size:0.7rem;font-weight:700;color:#4a4a4a}
-.collection-count{font-size:0.65rem;color:#888;margin-top:2px}
-.collection-rarity{font-size:0.6rem;padding:1px 6px;border-radius:8px;margin-top:3px;display:inline-block;font-weight:700}
-.rarity-common{background:#e0e0e0;color:#666}
-.rarity-uncommon{background:#b3e5fc;color:#0277bd}
-.rarity-rare{background:#fff9c4;color:#f57f17}
-.rarity-epic{background:#e1bee7;color:#7b1fa2}
-.rarity-legendary{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#4a3000}
-
-.achievements-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
-.achievement{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);border-radius:14px;padding:12px;display:flex;align-items:center;gap:10px;transition:all 0.4s;border:2px solid transparent}
-.achievement:hover{transform:translateY(-2px)}
-.achievement.unlocked{background:linear-gradient(135deg,var(--gold) 0%,#fda085 100%);box-shadow:0 5px 20px rgba(0,0,0,0.1);border-color:rgba(246,211,101,0.5);animation:achievementUnlock 0.6s}
-@keyframes achievementUnlock{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
-.achievement-icon{font-size:1.7rem;flex-shrink:0}
-.achievement-info{flex:1;min-width:0}
-.achievement-name{font-weight:700;font-size:0.85rem;color:#4a4a4a}
-.achievement-desc{font-size:0.72rem;color:#888}
-.achievement-progress{width:100%;height:4px;background:rgba(0,0,0,0.1);border-radius:4px;margin-top:4px;overflow:hidden}
-.achievement-progress-bar{height:100%;background:var(--primary);border-radius:4px;transition:width 0.5s}
-
-.sparkle{position:fixed;width:12px;height:12px;pointer-events:none;z-index:1000;animation:sparkleAnim 1s forwards}
-@keyframes sparkleAnim{0%{opacity:1;transform:scale(0) rotate(0deg)}50%{opacity:1;transform:scale(1.2) rotate(180deg)}100%{opacity:0;transform:scale(0) rotate(360deg)}}
-
-.daily-bonus{position:fixed;bottom:20px;left:20px;background:linear-gradient(135deg,var(--gold) 0%,#fda085 100%);color:white;padding:12px 22px;border-radius:25px;font-weight:900;cursor:pointer;box-shadow:0 6px 25px rgba(0,0,0,0.2);transition:all 0.4s;z-index:100;border:2px solid rgba(255,255,255,0.5);font-size:0.95rem;animation:bonusBounce 2s infinite}
-@keyframes bonusBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.daily-bonus:hover{transform:scale(1.08);box-shadow:0 10px 35px rgba(0,0,0,0.25)}
-.daily-bonus.claimed{background:#bbb;cursor:not-allowed;opacity:0.7;animation:none}
-
-.missions-section{background:var(--glass);backdrop-filter:blur(20px);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.5)}
-.mission-item{display:flex;align-items:center;gap:12px;padding:10px;background:rgba(255,255,255,0.6);border-radius:14px;margin-bottom:8px;transition:all 0.3s;border:2px solid transparent}
-.mission-item:hover{background:rgba(255,255,255,0.8);transform:translateX(-4px)}
-.mission-item.completed{border-color:var(--success);background:linear-gradient(135deg,rgba(212,252,121,0.3) 0%,rgba(150,230,161,0.3) 100%)}
-.mission-emoji{font-size:1.5rem}
-.mission-info{flex:1}
-.mission-name{font-weight:700;font-size:0.9rem;color:#4a4a4a}
-.mission-desc{font-size:0.75rem;color:#888}
-.mission-reward{font-size:0.8rem;font-weight:700;color:var(--accent)}
-
-.event-banner{background:linear-gradient(135deg,#ff6b6b 0%,#feca57 50%,#48dbfb 100%);background-size:200% 200%;border-radius:20px;padding:14px 18px;margin-bottom:12px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;color:white;font-weight:700;animation:eventGradient 5s infinite;border:2px solid rgba(255,255,255,0.4)}
-@keyframes eventGradient{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.event-title{font-size:1rem}
-.event-timer{font-size:0.85rem;background:rgba(0,0,0,0.2);padding:4px 12px;border-radius:12px}
-
-.sound-toggle{position:fixed;bottom:20px;right:20px;width:50px;height:50px;border-radius:50%;background:var(--glass);backdrop-filter:blur(20px);border:2px solid rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;box-shadow:var(--shadow);transition:all 0.3s;z-index:100}
-.sound-toggle:hover{transform:scale(1.1);box-shadow:0 12px 40px rgba(0,0,0,0.18)}
-.sound-toggle.muted{opacity:0.6}
-
-.levelup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);z-index:5000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px}
-.levelup-overlay.active{display:flex;animation:fadeIn 0.3s}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.levelup-card{background:white;border-radius:30px;padding:40px;text-align:center;max-width:350px;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:levelUpPop 0.6s}
-@keyframes levelUpPop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
-.levelup-emoji{font-size:4rem;margin-bottom:10px}
-.levelup-title{font-size:2rem;font-weight:900;color:var(--secondary);margin-bottom:8px}
-.levelup-text{color:#888;margin-bottom:20px}
-.levelup-btn{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:white;border:none;padding:12px 40px;border-radius:25px;font-family:'Tajawal',sans-serif;font-size:1.1rem;font-weight:900;cursor:pointer;transition:all 0.3s}
-.levelup-btn:hover{transform:scale(1.05)}
-
-@media(max-width:600px){.intro-title{font-size:2rem}.title{font-size:1.1rem}.stats-bar{gap:6px}.stat-item{padding:5px 10px;font-size:0.78rem}.bug{font-size:2rem}.shop-grid{grid-template-columns:repeat(2,1fr)}.game-area{min-height:300px}.combo-display{font-size:2.5rem}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مزرعة صيد الحشرات الكيوت 🐛</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #d299c2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            animation: float 8s infinite ease-in-out;
+            opacity: 0.6;
+            z-index: 0;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+        
+        /* Main container */
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        
+        .title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #6b4c9a;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+            transition: transform 0.2s;
+        }
+        .stat-item:hover { transform: scale(1.05); }
+        
+        /* Level & XP */
+        .level-section {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .level-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+        
+        .xp-bar-container {
+            background: #e0e0e0;
+            border-radius: 15px;
+            height: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .xp-bar {
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .xp-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #333;
+            text-shadow: 0 0 3px white;
+        }
+        
+        /* Motivation toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        
+        .toast {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #5d4037;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            animation: toastIn 0.5s ease, toastOut 0.5s ease 2.5s forwards;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.8); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(-20px) scale(0.8); }
+        }
+        
+        /* Game Area */
+        .game-area {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 15px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255,255,255,0.6);
+        }
+        
+        .garden-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(144,238,144,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,182,193,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(173,216,230,0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        /* Bug styling */
+        .bug {
+            position: absolute;
+            cursor: pointer;
+            font-size: 2.5rem;
+            transition: all 0.3s ease;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+            animation: bugFloat 3s infinite ease-in-out;
+            z-index: 10;
+        }
+        
+        .bug:hover {
+            transform: scale(1.3) rotate(10deg);
+            filter: drop-shadow(2px 4px 10px rgba(0,0,0,0.3));
+        }
+        
+        .bug.caught {
+            animation: caughtAnim 0.6s ease forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes bugFloat {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+        
+        @keyframes caughtAnim {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5) rotate(360deg); opacity: 0.8; }
+            100% { transform: scale(0) rotate(720deg); opacity: 0; }
+        }
+        
+        /* Floating text when catching */
+        .float-text {
+            position: absolute;
+            font-weight: 900;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: floatUp 1s ease forwards;
+            z-index: 100;
+            text-shadow: 2px 2px 0px white;
+        }
+        
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
+        }
+        
+        /* Tool selector */
+        .tools-section {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #6b4c9a;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        
+        .tool-btn {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            border: 3px solid transparent;
+            border-radius: 15px;
+            padding: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .tool-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .tool-btn.active {
+            border-color: #ff6b6b;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            transform: scale(1.05);
+        }
+        
+        .tool-icon { font-size: 1.8rem; display: block; margin-bottom: 5px; }
+        .tool-name { font-weight: 700; font-size: 0.85rem; color: #4a4a4a; }
+        
+        /* Shop */
+        .shop-section {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        
+        .shop-item {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        
+        .shop-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .shop-item.owned {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            opacity: 0.8;
+        }
+        
+        .shop-item.owned .shop-btn {
+            background: #888;
+            cursor: not-allowed;
+        }
+        
+        .shop-icon { font-size: 2rem; margin-bottom: 8px; }
+        .shop-name { font-weight: 700; font-size: 0.9rem; color: #5d4037; margin-bottom: 5px; }
+        .shop-desc { font-size: 0.75rem; color: #8d6e63; margin-bottom: 8px; }
+        .shop-price { font-weight: 900; color: #e74c3c; margin-bottom: 8px; }
+        
+        .shop-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+        
+        .shop-btn:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        
+        .shop-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Collection */
+        .collection-section {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+        }
+        
+        .collection-item {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        
+        .collection-item.caught {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .collection-item.not-caught {
+            opacity: 0.4;
+            filter: grayscale(0.8);
+        }
+        
+        .collection-emoji { font-size: 2rem; }
+        .collection-name { font-size: 0.75rem; font-weight: 700; color: #4a4a4a; margin-top: 5px; }
+        .collection-count { font-size: 0.7rem; color: #888; }
+        
+        /* Achievements */
+        .achievements-section {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .achievement {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .achievement.unlocked {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .achievement-icon { font-size: 1.8rem; }
+        .achievement-info { flex: 1; }
+        .achievement-name { font-weight: 700; font-size: 0.9rem; color: #4a4a4a; }
+        .achievement-desc { font-size: 0.75rem; color: #888; }
+        
+        /* Combo display */
+        .combo-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ff6b6b;
+            text-shadow: 3px 3px 0px white, -1px -1px 0px white;
+            pointer-events: none;
+            z-index: 999;
+            animation: comboPop 0.8s ease forwards;
+            display: none;
+        }
+        
+        @keyframes comboPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-50px); }
+        }
+        
+        /* Start screen overlay */
+        .start-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .start-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .start-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #6b4c9a;
+            margin-bottom: 10px;
+        }
+        
+        .start-subtitle {
+            font-size: 1.1rem;
+            color: #888;
+            margin-bottom: 25px;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            border-radius: 30px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(102,126,234,0.5);
+        }
+        
+        .start-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .title { font-size: 1.1rem; }
+            .stats-bar { gap: 8px; }
+            .stat-item { padding: 6px 10px; font-size: 0.8rem; }
+            .bug { font-size: 2rem; }
+            .shop-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        /* Sparkle effect */
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: gold;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkleAnim 0.8s ease forwards;
+        }
+        
+        @keyframes sparkleAnim {
+            0% { opacity: 1; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+            100% { opacity: 0; transform: scale(0) rotate(360deg); }
+        }
+        
+        /* Daily bonus */
+        .daily-bonus {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 100;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        
+        .daily-bonus:hover { transform: scale(1.05); }
+        .daily-bonus.claimed { background: #ccc; cursor: not-allowed; opacity: 0.7; }
+        
+        /* Streak fire */
+        .streak-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            color: #ff6b6b;
+        }
+    </style>
 </head>
+<body>
+    <!-- Floating particles -->
+    <div id="particles"></div>
+    
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Combo display -->
+    <div class="combo-display" id="comboDisplay"></div>
+    
+    <!-- Start overlay -->
+    <div class="start-overlay" id="startOverlay">
+        <div class="start-card">
+            <div class="start-emoji">🐛🦋🐞</div>
+            <div class="start-title">مزرعة صيد الحشرات</div>
+            <div class="start-subtitle">اصطاد الحشرات الكيوت، اجمعهم، وطور أدواتك!</div>
+            <button class="start-btn" onclick="startGame()">ابدأ اللعب! 🎮</button>
+        </div>
+    </div>
+    
+    <div class="game-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title">🌸 مزرعة الحشرات الكيوت</div>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span>💰</span>
+                    <span id="moneyDisplay">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>🎯</span>
+                    <span id="scoreDisplay">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>🔥</span>
+                    <span id="streakDisplay">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Level & XP -->
+        <div class="level-section">
+            <div class="level-info">
+                <div class="level-badge">المستوى <span id="levelNum">1</span></div>
+                <div style="font-weight:700;color:#888;font-size:0.9rem">
+                    <span id="caughtCount">0</span> / <span id="totalBugs">20</span> حشرة
+                </div>
+            </div>
+            <div class="xp-bar-container">
+                <div class="xp-bar" id="xpBar" style="width: 0%"></div>
+                <div class="xp-text"><span id="currentXP">0</span> / <span id="neededXP">100</span> XP</div>
+            </div>
+        </div>
+        
+        <!-- Tools -->
+        <div class="tools-section">
+            <div class="section-title">🛠️ أدوات الصيد</div>
+            <div class="tools-grid" id="toolsGrid"></div>
+        </div>
+        
+        <!-- Game Area -->
+        <div class="game-area" id="gameArea">
+            <div class="garden-bg"></div>
+        </div>
+        
+        <!-- Shop -->
+        <div class="shop-section">
+            <div class="section-title">🛒 متجر الأدوات والتحسينات</div>
+            <div class="shop-grid" id="shopGrid"></div>
+        </div>
+        
+        <!-- Collection -->
+        <div class="collection-section">
+            <div class="section-title">📚 مجموعة الحشرات</div>
+            <div class="collection-grid" id="collectionGrid"></div>
+        </div>
+        
+        <!-- Achievements -->
+        <div class="achievements-section">
+            <div class="section-title">🏆 الإنجازات</div>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+        </div>
+    </div>
+    
+    <!-- Daily Bonus -->
+    <div class="daily-bonus" id="dailyBonus" onclick="claimDailyBonus()">
+        🎁 مكافأة يومية!
+    </div>
+
+    <script>
+        // ==================== GAME DATA ====================
+        
+        const BUGS = [
+            { id: 'ladybug', emoji: '🐞', name: 'دعسوقة', rarity: 'common', baseValue: 10, xp: 5, speed: 3000, desc: 'دعسوقة حمراء كيوت!' },
+            { id: 'butterfly', emoji: '🦋', name: 'فراشة', rarity: 'common', baseValue: 15, xp: 8, speed: 2500, desc: 'فراشة ملونة جميلة' },
+            { id: 'bee', emoji: '🐝', name: 'نحلة', rarity: 'common', baseValue: 12, xp: 6, speed: 2000, desc: 'نحلة تعمل بجد!' },
+            { id: 'snail', emoji: '🐌', name: 'حلزون', rarity: 'common', baseValue: 8, xp: 4, speed: 5000, desc: 'بطيء لكن كيوت' },
+            { id: 'caterpillar', emoji: '🐛', name: 'يرقة', rarity: 'common', baseValue: 10, xp: 5, speed: 3500, desc: 'يرقة خضراء صغيرة' },
+            { id: 'ant', emoji: '🐜', name: 'نملة', rarity: 'common', baseValue: 5, xp: 3, speed: 1500, desc: 'نملة مجتهدة' },
+            { id: 'spider', emoji: '🕷️', name: 'عنكبوت', rarity: 'uncommon', baseValue: 20, xp: 12, speed: 2200, desc: 'عنكبوت صغير لطيف' },
+            { id: 'cricket', emoji: '🦗', name: 'صرصور', rarity: 'uncommon', baseValue: 18, xp: 10, speed: 1800, desc: 'يصفر بصوت جميل' },
+            { id: 'beetle', emoji: '🪲', name: 'خنفساء', rarity: 'uncommon', baseValue: 25, xp: 15, speed: 2800, desc: 'خنفساء لامعة' },
+            { id: 'worm', emoji: '🪱', name: 'دودة', rarity: 'uncommon', baseValue: 15, xp: 8, speed: 4000, desc: 'دودة ودودة' },
+            { id: 'dragonfly', emoji: '🦟', name: 'يعسوب', rarity: 'rare', baseValue: 40, xp: 25, speed: 1500, desc: 'يعسوب سريع ونادر' },
+            { id: 'moth', emoji: '🦋', name: 'عثة ليلية', rarity: 'rare', baseValue: 35, xp: 20, speed: 2000, desc: 'عثة جميلة في الليل' },
+            { id: 'firefly', emoji: '✨', name: 'يراعة', rarity: 'rare', baseValue: 50, xp: 30, speed: 2500, desc: 'تضيء في الظلام!' },
+            { id: 'praying_mantis', emoji: '🦗', name: 'سرعوف', rarity: 'rare', baseValue: 45, xp: 28, speed: 2000, desc: 'سرعوف يصلي' },
+            { id: 'scorpion', emoji: '🦂', name: 'عقرب', rarity: 'epic', baseValue: 80, xp: 50, speed: 1800, desc: 'عقرب نادر وقوي' },
+            { id: 'centipede', emoji: '🐛', name: 'أم أربع وأربعين', rarity: 'epic', baseValue: 70, xp: 45, speed: 1600, desc: 'سريعة جداً!' },
+            { id: 'rhino_beetle', emoji: '🪲', name: 'خنفساء وحيد القرن', rarity: 'epic', baseValue: 90, xp: 55, speed: 2200, desc: 'قوية ونادرة' },
+            { id: 'butterfly_queen', emoji: '👑', name: 'ملكة الفراشات', rarity: 'legendary', baseValue: 200, xp: 150, speed: 3000, desc: 'الأجمل على الإطلاق!' },
+            { id: 'golden_beetle', emoji: '🌟', name: 'الخنفساء الذهبية', rarity: 'legendary', baseValue: 250, xp: 200, speed: 2500, desc: 'أسطورية ونادرة!' },
+            { id: 'rainbow_bug', emoji: '🌈', name: 'حشرة قوس قزح', rarity: 'legendary', baseValue: 300, xp: 250, speed: 2000, desc: 'أسطورة المزرعة!' }
+        ];
+        
+        const TOOLS = [
+            { id: 'net', emoji: '🕸️', name: 'شبكة صيد', power: 1, speed: 1, desc: 'أداة أساسية للصيد' },
+            { id: 'quick_net', emoji: '⚡', name: 'شبكة سريعة', power: 1, speed: 1.5, desc: 'أسرع بنسبة 50%' },
+            { id: 'magic_net', emoji: '✨', name: 'شبكة سحرية', power: 2, speed: 1.2, desc: 'تضاعف الأرباح!' },
+            { id: 'golden_net', emoji: '🏆', name: 'شبكة ذهبية', power: 3, speed: 2, desc: 'الأداة الأسطورية!' }
+        ];
+        
+        const SHOP_ITEMS = [
+            { id: 'quick_net', emoji: '⚡', name: 'شبكة سريعة', price: 200, desc: 'صيد أسرع بنسبة 50%', type: 'tool' },
+            { id: 'magic_net', emoji: '✨', name: 'شبكة سحرية', price: 500, desc: 'تضاعف قيمة الحشرات', type: 'tool' },
+            { id: 'golden_net', emoji: '🏆', name: 'شبكة ذهبية', price: 1500, desc: 'صيد فائق السرعة والربح', type: 'tool' },
+            { id: 'bait', emoji: '🍯', name: 'طعم جذاب', price: 100, desc: 'يجذب حشرات نادرة أكثر', type: 'upgrade' },
+            { id: 'magnifier', emoji: '🔍', name: 'مكبر صوت', price: 300, desc: 'يزيد فرصة الظهور 25%', type: 'upgrade' },
+            { id: 'lucky_charm', emoji: '🍀', name: 'تميمة حظ', price: 800, desc: 'ضعف فرصة الحشرات الأسطورية', type: 'upgrade' },
+            { id: 'auto_catcher', emoji: '🤖', name: 'صياد آلي', price: 2000, desc: 'يصيد تلقائياً كل 5 ثواني', type: 'upgrade' },
+            { id: 'xp_boost', emoji: '📈', name: 'معزز XP', price: 400, desc: 'ضعف نقاط الخبرة', type: 'upgrade' },
+            { id: 'garden_expansion', emoji: '🌳', name: 'توسيع المزرعة', price: 1000, desc: 'مساحة أكبر = حشرات أكثر', type: 'upgrade' }
+        ];
+        
+        const ACHIEVEMENTS = [
+            { id: 'first_catch', emoji: '🎯', name: 'أول صيد', desc: 'اصطد أول حشرة', requirement: 1, type: 'catches' },
+            { id: 'bug_hunter', emoji: '🏹', name: 'صياد الحشرات', desc: 'اصطد 10 حشرات', requirement: 10, type: 'catches' },
+            { id: 'bug_master', emoji: '👑', name: 'سيد الحشرات', desc: 'اصطد 50 حشرة', requirement: 50, type: 'catches' },
+            { id: 'rich', emoji: '💎', name: 'ثراء', desc: 'اجمع 1000 عملة', requirement: 1000, type: 'money' },
+            { id: 'millionaire', emoji: '💰', name: 'مليونير', desc: 'اجمع 5000 عملة', requirement: 5000, type: 'money' },
+            { id: 'collector', emoji: '📚', name: 'جامع', desc: 'اجمع 5 أنواع مختلفة', requirement: 5, type: 'types' },
+            { id: 'completionist', emoji: '🏆', name: 'المكمل', desc: 'اجمع كل أنواع الحشرات', requirement: 20, type: 'types' },
+            { id: 'combo_king', emoji: '🔥', name: 'ملك الكومبو', desc: 'وصل الكومبو لـ 10', requirement: 10, type: 'combo' },
+            { id: 'legendary', emoji: '🌟', name: 'صياد أساطير', desc: 'اصطد حشرة أسطورية', requirement: 1, type: 'legendary' },
+            { id: 'speed_demon', emoji: '⚡', name: 'شيطان السرعة', desc: 'اصطد 5 حشرات في 10 ثواني', requirement: 5, type: 'speed' }
+        ];
+        
+        const MOTIVATIONS = [
+            'رائع! 🎉', 'أحسنت! ⭐', 'ممتاز! 💪', 'صياد محترف! 🏹',
+            'واصل! 🔥', 'لا يُقهر! 👑', 'مذهل! 🤩', 'سريع جداً! ⚡',
+            'عين صقر! 🦅', 'ما شاء الله! ✨', 'إبداع! 🎨', 'أسطوري! 🌟',
+            'لا يُصدق! 😲', 'محترف! 🎖️', 'جامع محترف! 📚'
+        ];
+        
+        // ==================== GAME STATE ====================
+        
+        let gameState = {
+            money: 0,
+            score: 0,
+            level: 1,
+            xp: 0,
+            xpNeeded: 100,
+            streak: 0,
+            maxStreak: 0,
+            totalCaught: 0,
+            bugsCaught: {},
+            toolsOwned: ['net'],
+            currentTool: 'net',
+            upgrades: [],
+            achievementsUnlocked: [],
+            lastCatchTime: 0,
+            speedCatches: 0,
+            speedStartTime: 0,
+            autoCatcherInterval: null,
+            dailyBonusClaimed: false,
+            lastDailyBonus: null
+        };
+        
+        let activeBugs = [];
+        let bugSpawnInterval;
+        let comboTimeout;
+        
+        // ==================== INITIALIZATION ====================
+        
+        function initParticles() {
+            const container = document.getElementById('particles');
+            const emojis = ['🌸', '🍃', '✨', '🦋', '⭐'];
+            for (let i = 0; i < 15; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                p.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                container.appendChild(p);
+            }
+        }
+        
+        function startGame() {
+            document.getElementById('startOverlay').style.display = 'none';
+            initParticles();
+            renderTools();
+            renderShop();
+            renderCollection();
+            renderAchievements();
+            updateUI();
+            startSpawning();
+            checkDailyBonus();
+            showToast('🎉 مرحباً بك في مزرعة الحشرات! ابدأ الصيد!');
+        }
+        
+        // ==================== BUG SPAWNING ====================
+        
+        function getSpawnRate(bug) {
+            const rates = { common: 0.5, uncommon: 0.3, rare: 0.15, epic: 0.04, legendary: 0.01 };
+            let rate = rates[bug.rarity];
+            
+            // Apply upgrades
+            if (gameState.upgrades.includes('bait')) rate *= 1.3;
+            if (gameState.upgrades.includes('magnifier')) rate *= 1.25;
+            if (gameState.upgrades.includes('lucky_charm')) {
+                if (bug.rarity === 'legendary' || bug.rarity === 'epic') rate *= 2;
+            }
+            
+            return rate;
+        }
+        
+        function spawnBug() {
+            const gameArea = document.getElementById('gameArea');
+            const rect = gameArea.getBoundingClientRect();
+            
+            // Determine which bug to spawn based on rarity
+            const rand = Math.random();
+            let cumulative = 0;
+            let selectedBug = BUGS[0];
+            
+            const availableBugs = BUGS.filter(b => {
+                const rate = getSpawnRate(b);
+                cumulative += rate;
+                return rand <= cumulative;
+            });
+            
+            if (availableBugs.length > 0) {
+                selectedBug = availableBugs[0];
+            } else {
+                selectedBug = BUGS[Math.floor(Math.random() * BUGS.length)];
+            }
+            
+            const bugEl = document.createElement('div');
+            bugEl.className = 'bug';
+            bugEl.textContent = selectedBug.emoji;
+            bugEl.dataset.bugId = selectedBug.id;
+            
+            // Random position
+            const maxX = rect.width - 60;
+            const maxY = rect.height - 60;
+            const x = Math.random() * maxX + 10;
+            const y = Math.random() * maxY + 10;
+            
+            bugEl.style.left = x + 'px';
+            bugEl.style.top = y + 'px';
+            bugEl.style.animationDelay = Math.random() * 2 + 's';
+            
+            // Random movement
+            const moveInterval = setInterval(() => {
+                if (!bugEl.parentElement) {
+                    clearInterval(moveInterval);
+                    return;
+                }
+                const newX = Math.random() * maxX + 10;
+                const newY = Math.random() * maxY + 10;
+                bugEl.style.left = newX + 'px';
+                bugEl.style.top = newY + 'px';
+            }, selectedBug.speed);
+            
+            bugEl.onclick = (e) => catchBug(e, selectedBug, bugEl, moveInterval);
+            
+            gameArea.appendChild(bugEl);
+            activeBugs.push({ el: bugEl, interval: moveInterval });
+            
+            // Auto-remove after some time
+            setTimeout(() => {
+                if (bugEl.parentElement && !bugEl.classList.contains('caught')) {
+                    bugEl.style.opacity = '0';
+                    setTimeout(() => {
+                        if (bugEl.parentElement) {
+                            bugEl.remove();
+                            activeBugs = activeBugs.filter(b => b.el !== bugEl);
+                        }
+                    }, 300);
+                }
+            }, selectedBug.speed * 2 + 2000);
+        }
+        
+        function startSpawning() {
+            let spawnRate = 2000;
+            if (gameState.upgrades.includes('garden_expansion')) spawnRate = 1500;
+            
+            bugSpawnInterval = setInterval(() => {
+                const maxBugs = gameState.upgrades.includes('garden_expansion') ? 8 : 5;
+                if (activeBugs.length < maxBugs) {
+                    spawnBug();
+                }
+            }, spawnRate);
+        }
+        
+        // ==================== CATCHING ====================
+        
+        function catchBug(e, bug, el, moveInterval) {
+            if (el.classList.contains('caught')) return;
+            
+            clearInterval(moveInterval);
+            el.classList.add('caught');
+            
+            // Calculate value
+            const tool = TOOLS.find(t => t.id === gameState.currentTool);
+            let value = bug.baseValue * tool.power;
+            let xp = bug.xp;
+            
+            if (gameState.upgrades.includes('xp_boost')) xp *= 2;
+            
+            // Combo system
+            const now = Date.now();
+            if (now - gameState.lastCatchTime < 2000) {
+                gameState.streak++;
+                if (gameState.streak > gameState.maxStreak) gameState.maxStreak = gameState.streak;
+            } else {
+                gameState.streak = 1;
+            }
+            gameState.lastCatchTime = now;
+            
+            // Combo multiplier
+            const comboMultiplier = Math.min(gameState.streak, 10);
+            if (gameState.streak > 1) {
+                value *= (1 + comboMultiplier * 0.1);
+                showCombo(gameState.streak);
+            }
+            
+            // Speed challenge
+            if (gameState.speedStartTime === 0 || now - gameState.speedStartTime > 10000) {
+                gameState.speedStartTime = now;
+                gameState.speedCatches = 1;
+            } else {
+                gameState.speedCatches++;
+            }
+            
+            // Update state
+            gameState.money += Math.floor(value);
+            gameState.score += Math.floor(value);
+            gameState.xp += xp;
+            gameState.totalCaught++;
+            
+            if (!gameState.bugsCaught[bug.id]) {
+                gameState.bugsCaught[bug.id] = 0;
+            }
+            gameState.bugsCaught[bug.id]++;
+            
+            // Floating text
+            showFloatText(e.clientX, e.clientY, `+${Math.floor(value)}💰 +${xp}XP`, '#667eea');
+            
+            // Sparkles
+            createSparkles(e.clientX, e.clientY);
+            
+            // Motivation
+            if (gameState.streak % 5 === 0 || bug.rarity === 'legendary' || bug.rarity === 'epic') {
+                showToast(MOTIVATIONS[Math.floor(Math.random() * MOTIVATIONS.length)]);
+            }
+            
+            // Level up check
+            checkLevelUp();
+            
+            // Achievement check
+            checkAchievements();
+            
+            // Update UI
+            updateUI();
+            renderCollection();
+            renderAchievements();
+            
+            // Remove bug after animation
+            setTimeout(() => {
+                if (el.parentElement) el.remove();
+                activeBugs = activeBugs.filter(b => b.el !== el);
+            }, 600);
+        }
+        
+        function showFloatText(x, y, text, color) {
+            const ft = document.createElement('div');
+            ft.className = 'float-text';
+            ft.textContent = text;
+            ft.style.left = x + 'px';
+            ft.style.top = y + 'px';
+            ft.style.color = color;
+            document.body.appendChild(ft);
+            setTimeout(() => ft.remove(), 1000);
+        }
+        
+        function createSparkles(x, y) {
+            for (let i = 0; i < 6; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = (x + Math.random() * 40 - 20) + 'px';
+                sparkle.style.top = (y + Math.random() * 40 - 20) + 'px';
+                sparkle.style.background = ['gold', '#ff6b6b', '#4ecdc4', '#ffe66d'][Math.floor(Math.random() * 4)];
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 800);
+            }
+        }
+        
+        function showCombo(streak) {
+            const display = document.getElementById('comboDisplay');
+            display.textContent = `كومبو x${streak}! 🔥`;
+            display.style.display = 'block';
+            display.style.animation = 'none';
+            setTimeout(() => {
+                display.style.animation = 'comboPop 0.8s ease forwards';
+            }, 10);
+            
+            clearTimeout(comboTimeout);
+            comboTimeout = setTimeout(() => {
+                display.style.display = 'none';
+            }, 800);
+        }
+        
+        // ==================== LEVEL SYSTEM ====================
+        
+        function checkLevelUp() {
+            while (gameState.xp >= gameState.xpNeeded) {
+                gameState.xp -= gameState.xpNeeded;
+                gameState.level++;
+                gameState.xpNeeded = Math.floor(gameState.xpNeeded * 1.5);
+                showToast(`🎊 تهانينا! وصلت للمستوى ${gameState.level}!`);
+                
+                // Bonus coins on level up
+                const bonus = gameState.level * 50;
+                gameState.money += bonus;
+                showFloatText(window.innerWidth / 2, window.innerHeight / 2, `مكافأة المستوى! +${bonus}💰`, '#f5576c');
+            }
+        }
+        
+        // ==================== TOOLS ====================
+        
+        function renderTools() {
+            const grid = document.getElementById('toolsGrid');
+            grid.innerHTML = '';
+            
+            TOOLS.forEach(tool => {
+                if (!gameState.toolsOwned.includes(tool.id)) return;
+                
+                const btn = document.createElement('button');
+                btn.className = 'tool-btn' + (gameState.currentTool === tool.id ? ' active' : '');
+                btn.innerHTML = `
+                    <span class="tool-icon">${tool.emoji}</span>
+                    <span class="tool-name">${tool.name}</span>
+                `;
+                btn.onclick = () => selectTool(tool.id);
+                grid.appendChild(btn);
+            });
+        }
+        
+        function selectTool(toolId) {
+            gameState.currentTool = toolId;
+            renderTools();
+            const tool = TOOLS.find(t => t.id === toolId);
+            showToast(`🛠️ اخترت: ${tool.name}`);
+        }
+        
+        // ==================== SHOP ====================
+        
+        function renderShop() {
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '';
+            
+            SHOP_ITEMS.forEach(item => {
+                const isOwned = gameState.toolsOwned.includes(item.id) || gameState.upgrades.includes(item.id);
+                const canAfford = gameState.money >= item.price;
+                
+                const div = document.createElement('div');
+                div.className = 'shop-item' + (isOwned ? ' owned' : '');
+                div.innerHTML = `
+                    <div class="shop-icon">${item.emoji}</div>
+                    <div class="shop-name">${item.name}</div>
+                    <div class="shop-desc">${item.desc}</div>
+                    <div class="shop-price">${isOwned ? '✅ تم الشراء' : item.price + ' 💰'}</div>
+                    <button class="shop-btn" ${isOwned || !canAfford ? 'disabled' : ''} onclick="buyItem('${item.id}', ${item.price}, '${item.type}')">
+                        ${isOwned ? 'تم الشراء' : canAfford ? 'شراء' : 'غير كافٍ'}
+                    </button>
+                `;
+                grid.appendChild(div);
+            });
+        }
+        
+        function buyItem(id, price, type) {
+            if (gameState.money < price) return;
+            
+            gameState.money -= price;
+            
+            if (type === 'tool') {
+                gameState.toolsOwned.push(id);
+                gameState.currentTool = id;
+                renderTools();
+            } else {
+                gameState.upgrades.push(id);
+                
+                // Apply upgrade effects
+                if (id === 'auto_catcher') {
+                    startAutoCatcher();
+                }
+                if (id === 'garden_expansion') {
+                    clearInterval(bugSpawnInterval);
+                    startSpawning();
+                }
+            }
+            
+            showToast(`🛒 تم شراء ${SHOP_ITEMS.find(i => i.id === id).name}!`);
+            updateUI();
+            renderShop();
+        }
+        
+        function startAutoCatcher() {
+            if (gameState.autoCatcherInterval) clearInterval(gameState.autoCatcherInterval);
+            gameState.autoCatcherInterval = setInterval(() => {
+                const uncaught = activeBugs.filter(b => !b.el.classList.contains('caught'));
+                if (uncaught.length > 0) {
+                    const bug = uncaught[0];
+                    const bugData = BUGS.find(b => b.id === bug.el.dataset.bugId);
+                    if (bugData) {
+                        const rect = bug.el.getBoundingClientRect();
+                        catchBug({ clientX: rect.left + 20, clientY: rect.top + 20 }, bugData, bug.el, bug.interval);
+                    }
+                }
+            }, 5000);
+        }
+        
+        // ==================== COLLECTION ====================
+        
+        function renderCollection() {
+            const grid = document.getElementById('collectionGrid');
+            grid.innerHTML = '';
+            
+            BUGS.forEach(bug => {
+                const count = gameState.bugsCaught[bug.id] || 0;
+                const caught = count > 0;
+                
+                const div = document.createElement('div');
+                div.className = 'collection-item' + (caught ? ' caught' : ' not-caught');
+                div.innerHTML = `
+                    <div class="collection-emoji">${bug.emoji}</div>
+                    <div class="collection-name">${bug.name}</div>
+                    <div class="collection-count">${caught ? count + ' مرات' : '???'}</div>
+                `;
+                
+                if (caught) {
+                    div.title = `${bug.name} - ${bug.desc} (الندرة: ${bug.rarity})`;
+                }
+                
+                grid.appendChild(div);
+            });
+        }
+        
+        // ==================== ACHIEVEMENTS ====================
+        
+        function renderAchievements() {
+            const grid = document.getElementById('achievementsGrid');
+            grid.innerHTML = '';
+            
+            ACHIEVEMENTS.forEach(ach => {
+                const unlocked = gameState.achievementsUnlocked.includes(ach.id);
+                
+                const div = document.createElement('div');
+                div.className = 'achievement' + (unlocked ? ' unlocked' : '');
+                div.innerHTML = `
+                    <div class="achievement-icon">${unlocked ? ach.emoji : '🔒'}</div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">${ach.name}</div>
+                        <div class="achievement-desc">${ach.desc}</div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+        
+        function checkAchievements() {
+            const uniqueTypes = Object.keys(gameState.bugsCaught).length;
+            const hasLegendary = Object.keys(gameState.bugsCaught).some(id => {
+                const bug = BUGS.find(b => b.id === id);
+                return bug && bug.rarity === 'legendary';
+            });
+            
+            ACHIEVEMENTS.forEach(ach => {
+                if (gameState.achievementsUnlocked.includes(ach.id)) return;
+                
+                let unlocked = false;
+                switch (ach.type) {
+                    case 'catches':
+                        if (gameState.totalCaught >= ach.requirement) unlocked = true;
+                        break;
+                    case 'money':
+                        if (gameState.money >= ach.requirement) unlocked = true;
+                        break;
+                    case 'types':
+                        if (uniqueTypes >= ach.requirement) unlocked = true;
+                        break;
+                    case 'combo':
+                        if (gameState.maxStreak >= ach.requirement) unlocked = true;
+                        break;
+                    case 'legendary':
+                        if (hasLegendary) unlocked = true;
+                        break;
+                    case 'speed':
+                        if (gameState.speedCatches >= ach.requirement) unlocked = true;
+                        break;
+                }
+                
+                if (unlocked) {
+                    gameState.achievementsUnlocked.push(ach.id);
+                    showToast(`🏆 إنجاز جديد: ${ach.name}!`);
+                    // Bonus for achievement
+                    gameState.money += 100;
+                    gameState.xp += 50;
+                }
+            });
+        }
+        
+        // ==================== DAILY BONUS ====================
+        
+        function checkDailyBonus() {
+            const today = new Date().toDateString();
+            const lastBonus = localStorage.getItem('bugFarmLastBonus');
+            
+            if (lastBonus === today) {
+                gameState.dailyBonusClaimed = true;
+                document.getElementById('dailyBonus').classList.add('claimed');
+                document.getElementById('dailyBonus').textContent = '✅ تم الحصول على المكافأة';
+            }
+        }
+        
+        function claimDailyBonus() {
+            if (gameState.dailyBonusClaimed) return;
+            
+            const today = new Date().toDateString();
+            localStorage.setItem('bugFarmLastBonus', today);
+            
+            const bonus = 200 + (gameState.level * 50);
+            gameState.money += bonus;
+            gameState.xp += 100;
+            gameState.dailyBonusClaimed = true;
+            
+            document.getElementById('dailyBonus').classList.add('claimed');
+            document.getElementById('dailyBonus').textContent = '✅ تم الحصول على المكافأة';
+            
+            showToast(`🎁 مكافأة يومية! +${bonus}💰 +100XP`);
+            updateUI();
+            checkLevelUp();
+        }
+        
+        // ==================== UI UPDATES ====================
+        
+        function updateUI() {
+            document.getElementById('moneyDisplay').textContent = gameState.money;
+            document.getElementById('scoreDisplay').textContent = gameState.score;
+            document.getElementById('streakDisplay').innerHTML = `<span class="streak-indicator">🔥${gameState.streak}</span>`;
+            document.getElementById('levelNum').textContent = gameState.level;
+            document.getElementById('caughtCount').textContent = Object.keys(gameState.bugsCaught).length;
+            document.getElementById('currentXP').textContent = gameState.xp;
+            document.getElementById('neededXP').textContent = gameState.xpNeeded;
+            
+            const xpPercent = (gameState.xp / gameState.xpNeeded) * 100;
+            document.getElementById('xpBar').style.width = xpPercent + '%';
+        }
+        
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // ==================== SAVE/LOAD ====================
+        
+        function saveGame() {
+            localStorage.setItem('bugFarmSave', JSON.stringify(gameState));
+        }
+        
+        function loadGame() {
+            const saved = localStorage.getItem('bugFarmSave');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                gameState = { ...gameState, ...parsed };
+                if (gameState.upgrades.includes('auto_catcher')) {
+                    startAutoCatcher();
+                }
+            }
+        }
+        
+        // Auto-save every 30 seconds
+        setInterval(saveGame, 30000);
+        
+        // Load on start
+        window.addEventListener('load', () => {
+            loadGame();
+        });
+        
+        // Save before unload
+        window.addEventListener('beforeunload', saveGame);
+    </script>
+</body>
+</html>"""
+
+# Save the file
+output_path = '/mnt/agents/output/bug_farm_game.html'
+with open(output_path, 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print(f"✅ Game saved to: {output_path}")
+print(f"📁 File size: {len(html_content)} characters")
